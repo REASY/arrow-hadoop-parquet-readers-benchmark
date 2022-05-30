@@ -18,6 +18,7 @@ public class HadoopParquetReaderBenchmark extends BaseParquetReaderBenchmark {
         private final Blackhole blackhole;
 
         public Long totalRows = 0L;
+        public Long hashCodeSum = 0L;
 
         public CountingProcessor(Blackhole blackhole) {
             this.blackhole = blackhole;
@@ -25,6 +26,14 @@ public class HadoopParquetReaderBenchmark extends BaseParquetReaderBenchmark {
         @Override
         public void accept(GenericRecord record) {
             totalRows += 1;
+
+            long sum = 0;
+            for (var field: record.getSchema().getFields()) {
+                if (field != null) {
+                    sum += field.hashCode();
+                }
+            }
+            hashCodeSum += sum;
             blackhole.consume(record);
         }
     }
@@ -34,5 +43,7 @@ public class HadoopParquetReaderBenchmark extends BaseParquetReaderBenchmark {
         var counter = new CountingProcessor(blackhole);
         var rdr = new HadoopParquetReader();
         rdr.read(filePath, counter);
+        blackhole.consume(counter.totalRows);
+        blackhole.consume(counter.hashCodeSum);
     }
 }

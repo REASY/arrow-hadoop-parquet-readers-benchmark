@@ -30,24 +30,31 @@ Test data is taken from Taxi & Limousine Commission, TLC Trip Record Data, Janua
 3. `java -jar target/benchmarks.jar -prof gc` to run benchmarks
 
 ## Results
-Arrow parquet reader reads all the rows in chunks in **963.175 ms**, Hadoop parquet readers reads all the rows in **18225.940 ms**, **18.9 times slower**!
+Arrow parquet reader reads all the rows in chunks in **2177.510 ms**, Hadoop parquet readers reads all the rows in **19588.983 ms**, **8.9 times slower**!
 
 Raw results:
 ```
-ArrowParquetReaderBenchmark.readAllColumns                                    avgt    5          963.175 ±       756.089   ms/op
-ArrowParquetReaderBenchmark.readAllColumns:·gc.alloc.rate                     avgt    5            0.862 ±         0.663  MB/sec
-ArrowParquetReaderBenchmark.readAllColumns:·gc.alloc.rate.norm                avgt    5       882171.360 ±     76801.998    B/op
-ArrowParquetReaderBenchmark.readAllColumns:·gc.count                          avgt    5              ≈ 0                  counts
-HadoopParquetReaderBenchmark.readAllColumns                                   avgt    5        18225.940 ±      3430.333   ms/op
-HadoopParquetReaderBenchmark.readAllColumns:·gc.alloc.rate                    avgt    5          846.759 ±       146.181  MB/sec
-HadoopParquetReaderBenchmark.readAllColumns:·gc.alloc.rate.norm               avgt    5  16599222292.800 ±     44405.370    B/op
-HadoopParquetReaderBenchmark.readAllColumns:·gc.churn.G1_Eden_Space           avgt    5          846.229 ±       163.306  MB/sec
-HadoopParquetReaderBenchmark.readAllColumns:·gc.churn.G1_Eden_Space.norm      avgt    5  16586794598.400 ± 934486470.665    B/op
-HadoopParquetReaderBenchmark.readAllColumns:·gc.churn.G1_Old_Gen              avgt    5            0.856 ±         1.973  MB/sec
-HadoopParquetReaderBenchmark.readAllColumns:·gc.churn.G1_Old_Gen.norm         avgt    5     17168268.800 ±  43923871.184    B/op
-HadoopParquetReaderBenchmark.readAllColumns:·gc.churn.G1_Survivor_Space       avgt    5            1.914 ±         1.215  MB/sec
-HadoopParquetReaderBenchmark.readAllColumns:·gc.churn.G1_Survivor_Space.norm  avgt    5     37748736.000 ±  30215326.241    B/op
-HadoopParquetReaderBenchmark.readAllColumns:·gc.count                         avgt    5          150.000                  counts
-HadoopParquetReaderBenchmark.readAllColumns:·gc.time                          avgt    5          302.000                      ms
+ArrowParquetReaderBenchmark.readAllColumns                                    avgt    5         2177.510 ±        63.118   ms/op
+ArrowParquetReaderBenchmark.readAllColumns:·gc.alloc.rate                     avgt    5          981.258 ±        26.948  MB/sec
+ArrowParquetReaderBenchmark.readAllColumns:·gc.alloc.rate.norm                avgt    5   2343524207.040 ±     94336.692    B/op
+ArrowParquetReaderBenchmark.readAllColumns:·gc.churn.G1_Eden_Space            avgt    5          983.570 ±        85.443  MB/sec
+ArrowParquetReaderBenchmark.readAllColumns:·gc.churn.G1_Eden_Space.norm       avgt    5   2349145784.320 ± 213869388.371    B/op
+ArrowParquetReaderBenchmark.readAllColumns:·gc.churn.G1_Old_Gen               avgt    5            0.006 ±         0.040  MB/sec
+ArrowParquetReaderBenchmark.readAllColumns:·gc.churn.G1_Old_Gen.norm          avgt    5        13848.640 ±     95908.293    B/op
+ArrowParquetReaderBenchmark.readAllColumns:·gc.churn.G1_Survivor_Space        avgt    5            0.070 ±         0.606  MB/sec
+ArrowParquetReaderBenchmark.readAllColumns:·gc.churn.G1_Survivor_Space.norm   avgt    5       167772.160 ±   1444568.895    B/op
+ArrowParquetReaderBenchmark.readAllColumns:·gc.count                          avgt    5           94.000                  counts
+ArrowParquetReaderBenchmark.readAllColumns:·gc.time                           avgt    5           49.000                      ms
+HadoopParquetReaderBenchmark.readAllColumns                                   avgt    5        19588.983 ±       727.421   ms/op
+HadoopParquetReaderBenchmark.readAllColumns:·gc.alloc.rate                    avgt    5          799.610 ±        29.085  MB/sec
+HadoopParquetReaderBenchmark.readAllColumns:·gc.alloc.rate.norm               avgt    5  16843029508.800 ±     44442.571    B/op
+HadoopParquetReaderBenchmark.readAllColumns:·gc.churn.G1_Eden_Space           avgt    5          799.078 ±        28.164  MB/sec
+HadoopParquetReaderBenchmark.readAllColumns:·gc.churn.G1_Eden_Space.norm      avgt    5  16833419673.600 ± 980659082.616    B/op
+HadoopParquetReaderBenchmark.readAllColumns:·gc.churn.G1_Old_Gen              avgt    5            0.768 ±         1.709  MB/sec
+HadoopParquetReaderBenchmark.readAllColumns:·gc.churn.G1_Old_Gen.norm         avgt    5     16189332.800 ±  36132567.084    B/op
+HadoopParquetReaderBenchmark.readAllColumns:·gc.churn.G1_Survivor_Space       avgt    5            1.594 ±         0.795  MB/sec
+HadoopParquetReaderBenchmark.readAllColumns:·gc.churn.G1_Survivor_Space.norm  avgt    5     33554432.000 ±  16150771.232    B/op
+HadoopParquetReaderBenchmark.readAllColumns:·gc.count                         avgt    5          153.000                  counts
+HadoopParquetReaderBenchmark.readAllColumns:·gc.time                          avgt    5          300.000                      ms
 ```
 
