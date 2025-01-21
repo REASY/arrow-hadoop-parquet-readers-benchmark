@@ -3,8 +3,8 @@ Arrow and Hadoop Parquet readers benchmark
 
 JMH benchmarks to measure the performance of parquet readers
 
-- Apache Hadoop parquet (parquet-avro v1.13.1)
-- Apache Arrow parquet (arrow-dataset v16.0.0)
+- Apache Hadoop parquet (parquet-avro v1.15.0)
+- Apache Arrow parquet (arrow-dataset v18.1.0)
 
 Test data is taken from Taxi & Limousine Commission, TLC Trip Record Data, January 2022, Yellow Taxi Trip
 Records (https://nyc-tlc.s3.amazonaws.com/trip+data/yellow_tripdata_2022-01.parquet). This file is copied
