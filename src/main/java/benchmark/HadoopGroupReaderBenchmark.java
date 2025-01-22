@@ -22,8 +22,6 @@ public class HadoopGroupReaderBenchmark extends BaseParquetReaderBenchmark {
 
         public Long totalRows = 0L;
 
-        public Integer batches = 0;
-
         public Long hashCodeSum = 0L;
 
         public CountingProcessor(Blackhole blackhole) {
@@ -37,32 +35,28 @@ public class HadoopGroupReaderBenchmark extends BaseParquetReaderBenchmark {
             long sum = 0L;
             for (Type field : record.getType().getFields()) {
                 var n = record.getFieldRepetitionCount(field.getName());
-                for (int i = 0; i < n; i++) {
+                // Only handle non-null values
+                if (n == 1) {
+                    int index = 0;
                     if (field.isPrimitive()) {
                         var primitive = field.asPrimitiveType();
-                        if (primitive.getPrimitiveTypeName() == PrimitiveType.PrimitiveTypeName.BOOLEAN) {
-                            sum += record.getBoolean(field.getName(), i) ? 1 : 0;
-                        } else if (primitive.getPrimitiveTypeName() == PrimitiveType.PrimitiveTypeName.INT32) {
-                            sum += record.getInteger(field.getName(), i);
+                        var primitiveTypeName = primitive.getPrimitiveTypeName();
+                        if (primitiveTypeName == PrimitiveType.PrimitiveTypeName.BOOLEAN) {
+                            sum += record.getBoolean(field.getName(), index) ? 1 : 0;
+                        } else if (primitiveTypeName == PrimitiveType.PrimitiveTypeName.INT32) {
+                            sum += record.getInteger(field.getName(), index);
+                        } else if (primitiveTypeName == PrimitiveType.PrimitiveTypeName.INT64) {
+                            sum += record.getLong(field.getName(), index);
+                        } else if (primitiveTypeName == PrimitiveType.PrimitiveTypeName.FLOAT) {
+                            sum += (long) record.getFloat(field.getName(), index);
+                        } else if (primitiveTypeName == PrimitiveType.PrimitiveTypeName.DOUBLE) {
+                            sum += (long) record.getDouble(field.getName(), index);
+                        } else if (primitiveTypeName == PrimitiveType.PrimitiveTypeName.BINARY && primitive.getLogicalTypeAnnotation() instanceof LogicalTypeAnnotation.StringLogicalTypeAnnotation) {
+                            sum += record.getString(field.getName(), index).hashCode();
+                        } else {
+                            throw new IllegalStateException(primitiveTypeName.toString());
                         }
-                        else if (primitive.getPrimitiveTypeName() == PrimitiveType.PrimitiveTypeName.INT64) {
-                            sum += record.getLong(field.getName(), i);
-                        }
-                        else if (primitive.getPrimitiveTypeName() == PrimitiveType.PrimitiveTypeName.FLOAT) {
-                            sum += record.getFloat(field.getName(), i);
-                        }
-                        else if (primitive.getPrimitiveTypeName() == PrimitiveType.PrimitiveTypeName.DOUBLE) {
-                            sum += record.getDouble(field.getName(), i);
-                        }
-                        else if (primitive.getPrimitiveTypeName() == PrimitiveType.PrimitiveTypeName.BINARY &&
-                                primitive.getLogicalTypeAnnotation() instanceof LogicalTypeAnnotation.StringLogicalTypeAnnotation) {
-                            sum += record.getString(field.getName(), i).hashCode();
-                        }
-                        else {
-                            throw new IllegalStateException(primitive.getPrimitiveTypeName().toString());
-                        }
-                    }
-                    else {
+                    } else {
                         throw new IllegalStateException(field.toString());
                     }
                 }
