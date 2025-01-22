@@ -30,7 +30,10 @@ public class AvroParquetReaderBenchmark extends BaseParquetReaderBenchmark {
             long sum = 0;
             for (var field: record.getSchema().getFields()) {
                 if (field != null) {
-                    sum += field.hashCode();
+                    Object obj = record.get(field.pos());
+                    if (obj != null) {
+                        sum += obj.hashCode();
+                    }
                 }
             }
             hashCodeSum += sum;
