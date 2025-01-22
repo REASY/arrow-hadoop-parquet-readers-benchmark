@@ -38,30 +38,30 @@ has 19 columns, sample:
 
 ## Results
 
-| Reader             | Average, ms | Faster than HadoopParquetReader, times | Average gc.alloc.rate, MB/sec | gc.time , ms |
-|--------------------|-------------|----------------------------------------|-------------------------------|--------------|
-| ArrowParquetReader | 875.749     | 9.02                                   | 1373.036                      | 78           |
-| HadoopGroupReader  | 3866.516    | 2.04                                   | 4020.260                      | 785          |
-| AvroParquetReader  | 7901.998    | 1                                      | 2174.226                      | 529          |
+| Reader             | Average, ms | Faster than AvroParquetReader, times | Average gc.alloc.rate, MB/sec | gc.time , ms |
+|--------------------|-------------|--------------------------------------|-------------------------------|--------------|
+| ArrowParquetReader | 837.026     | 8.457                                | 1436.499                      | 77           |
+| HadoopGroupReader  | 3424.390    | 2.067                                | 4524.978                      | 644          |
+| AvroParquetReader  | 7078.314    | 1                                    | 2395.299                      | 652          |
 
 Raw results:
 
 ```
-Benchmark                                                       Mode  Cnt            Score       Error   Units
-ArrowParquetReaderBenchmark.readAllColumns                      avgt    5          875.749 ±     26.415   ms/op
-ArrowParquetReaderBenchmark.readAllColumns:gc.alloc.rate        avgt    5         1373.036 ±     41.148  MB/sec
-ArrowParquetReaderBenchmark.readAllColumns:gc.alloc.rate.norm   avgt    5   1260805080.267 ± 122579.973    B/op
-ArrowParquetReaderBenchmark.readAllColumns:gc.count             avgt    5          123.000               counts
-ArrowParquetReaderBenchmark.readAllColumns:gc.time              avgt    5           78.000                   ms
-HadoopGroupReaderBenchmark.readAllColumns                       avgt    5         3866.516 ±    956.863   ms/op
-HadoopGroupReaderBenchmark.readAllColumns:gc.alloc.rate         avgt    5         4020.260 ±    964.547  MB/sec
-HadoopGroupReaderBenchmark.readAllColumns:gc.alloc.rate.norm    avgt    5  16247568832.533 ± 610338.778    B/op
-HadoopGroupReaderBenchmark.readAllColumns:gc.count              avgt    5          196.000               counts
-HadoopGroupReaderBenchmark.readAllColumns:gc.time               avgt    5          785.000                   ms
-AvroParquetReaderBenchmark.readAllColumns                       avgt    5         7901.998 ±    285.859   ms/op
-AvroParquetReaderBenchmark.readAllColumns:gc.alloc.rate         avgt    5         2174.226 ±     77.796  MB/sec
-AvroParquetReaderBenchmark.readAllColumns:gc.alloc.rate.norm    avgt    5  18014213176.000 ± 535162.018    B/op
-AvroParquetReaderBenchmark.readAllColumns:gc.count              avgt    5          366.000               counts
-AvroParquetReaderBenchmark.readAllColumns:gc.time               avgt    5          529.000                   ms
+Benchmark                                                      Mode  Cnt            Score        Error   Units
+ArrowParquetReaderBenchmark.readAllColumns                     avgt    5          837.026 ±      8.953   ms/op
+ArrowParquetReaderBenchmark.readAllColumns:gc.alloc.rate       avgt    5         1436.499 ±     15.323  MB/sec
+ArrowParquetReaderBenchmark.readAllColumns:gc.alloc.rate.norm  avgt    5   1260805553.333 ± 120820.850    B/op
+ArrowParquetReaderBenchmark.readAllColumns:gc.count            avgt    5          123.000               counts
+ArrowParquetReaderBenchmark.readAllColumns:gc.time             avgt    5           77.000                   ms
+AvroParquetReaderBenchmark.readAllColumns                      avgt    5         7078.314 ±    202.397   ms/op
+AvroParquetReaderBenchmark.readAllColumns:gc.alloc.rate        avgt    5         2395.299 ±     67.893  MB/sec
+AvroParquetReaderBenchmark.readAllColumns:gc.alloc.rate.norm   avgt    5  17777679391.200 ± 562015.622    B/op
+AvroParquetReaderBenchmark.readAllColumns:gc.count             avgt    5          246.000               counts
+AvroParquetReaderBenchmark.readAllColumns:gc.time              avgt    5          652.000                   ms
+HadoopGroupReaderBenchmark.readAllColumns                      avgt    5         3424.390 ±     92.500   ms/op
+HadoopGroupReaderBenchmark.readAllColumns:gc.alloc.rate        avgt    5         4524.978 ±    121.529  MB/sec
+HadoopGroupReaderBenchmark.readAllColumns:gc.alloc.rate.norm   avgt    5  16247558191.467 ± 525162.429    B/op
+HadoopGroupReaderBenchmark.readAllColumns:gc.count             avgt    5          198.000               counts
+HadoopGroupReaderBenchmark.readAllColumns:gc.time              avgt    5          644.000                   ms
 ```
 
