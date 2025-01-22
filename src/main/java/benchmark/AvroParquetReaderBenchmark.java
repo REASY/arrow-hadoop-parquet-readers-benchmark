@@ -37,7 +37,9 @@ public class AvroParquetReaderBenchmark extends BaseParquetReaderBenchmark {
                 }
             }
             hashCodeSum += sum;
-            blackhole.consume(record);
+            if (blackhole != null) {
+                blackhole.consume(record);
+            }
         }
     }
 
