@@ -3,8 +3,9 @@ Arrow and Hadoop Parquet readers benchmark
 
 JMH benchmarks to measure the performance of parquet readers
 
-- Apache Hadoop parquet (parquet-avro v1.15.0)
-- Apache Arrow parquet (arrow-dataset v18.1.0)
+- Apache Parquet Hadoop (parquet-hadoop v1.15.0)
+- Apache Arrow Parquet  (arrow-dataset v18.1.0)
+- Apache Parquet Avro   (parquet-avro v1.15.0)
 
 Test data is taken from Taxi & Limousine Commission, TLC Trip Record Data, January 2022, Yellow Taxi Trip
 Records (https://nyc-tlc.s3.amazonaws.com/trip+data/yellow_tripdata_2022-01.parquet). This file is copied
@@ -32,15 +33,16 @@ has 19 columns, sample:
 
 1. Make sure you have installed maven and Java 21
 2. `mvn package` in the root folder of the project to create JAR
-3. `java --add-opens=java.base/java.nio=org.apache.arrow.memory.core,ALL-UNNAMED -jar target/benchmarks.jar -prof gc` to run benchmarks
+3. `java --add-opens=java.base/java.nio=org.apache.arrow.memory.core,ALL-UNNAMED -jar target/benchmarks.jar -prof gc` to
+   run benchmarks
 
 ## Results
 
-| Reader              | Average, ms | Faster than HadoopParquetReader, times | Average gc.alloc.rate, MB/sec | gc.time , ms |
-|---------------------|-------------|----------------------------------------|-------------------------------|--------------|
-| ArrowParquetReader  | 875.749     | 9.02                                   | 1373.036                      | 78           |
-| HadoopGroupReader   | 3866.516    | 2.04                                   | 4020.260                      | 785          |
-| HadoopParquetReader | 7901.998    | 1                                      | 2174.226                      | 529          |
+| Reader             | Average, ms | Faster than HadoopParquetReader, times | Average gc.alloc.rate, MB/sec | gc.time , ms |
+|--------------------|-------------|----------------------------------------|-------------------------------|--------------|
+| ArrowParquetReader | 875.749     | 9.02                                   | 1373.036                      | 78           |
+| HadoopGroupReader  | 3866.516    | 2.04                                   | 4020.260                      | 785          |
+| AvroParquetReader  | 7901.998    | 1                                      | 2174.226                      | 529          |
 
 Raw results:
 
@@ -56,10 +58,10 @@ HadoopGroupReaderBenchmark.readAllColumns:gc.alloc.rate         avgt    5       
 HadoopGroupReaderBenchmark.readAllColumns:gc.alloc.rate.norm    avgt    5  16247568832.533 ± 610338.778    B/op
 HadoopGroupReaderBenchmark.readAllColumns:gc.count              avgt    5          196.000               counts
 HadoopGroupReaderBenchmark.readAllColumns:gc.time               avgt    5          785.000                   ms
-HadoopParquetReaderBenchmark.readAllColumns                     avgt    5         7901.998 ±    285.859   ms/op
-HadoopParquetReaderBenchmark.readAllColumns:gc.alloc.rate       avgt    5         2174.226 ±     77.796  MB/sec
-HadoopParquetReaderBenchmark.readAllColumns:gc.alloc.rate.norm  avgt    5  18014213176.000 ± 535162.018    B/op
-HadoopParquetReaderBenchmark.readAllColumns:gc.count            avgt    5          366.000               counts
-HadoopParquetReaderBenchmark.readAllColumns:gc.time             avgt    5          529.000                   ms
+AvroParquetReaderBenchmark.readAllColumns                       avgt    5         7901.998 ±    285.859   ms/op
+AvroParquetReaderBenchmark.readAllColumns:gc.alloc.rate         avgt    5         2174.226 ±     77.796  MB/sec
+AvroParquetReaderBenchmark.readAllColumns:gc.alloc.rate.norm    avgt    5  18014213176.000 ± 535162.018    B/op
+AvroParquetReaderBenchmark.readAllColumns:gc.count              avgt    5          366.000               counts
+AvroParquetReaderBenchmark.readAllColumns:gc.time               avgt    5          529.000                   ms
 ```
 

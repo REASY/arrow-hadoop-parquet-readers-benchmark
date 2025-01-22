@@ -8,7 +8,7 @@ import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class HadoopParquetReaderTest {
+class AvroParquetReaderTest {
     static class CountingProcessor implements Consumer<GenericRecord> {
         public Long totalRows = 0L;
         @Override
@@ -21,7 +21,7 @@ class HadoopParquetReaderTest {
     void can_read() throws Exception {
         String filePath = new File("src/main/resources/yellow_tripdata_2022-01.parquet").toURI().toString();
         var counter = new CountingProcessor();
-        var rdr = new HadoopParquetReader();
+        var rdr = new AvroParquetReader();
         rdr.read(filePath, counter);
         System.out.format("total rows: %d\n", counter.totalRows);
 

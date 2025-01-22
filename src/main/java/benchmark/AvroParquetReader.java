@@ -9,7 +9,7 @@ import org.apache.parquet.hadoop.util.HadoopInputFile;
 
 import java.util.function.Consumer;
 
-public class HadoopParquetReader {
+public class AvroParquetReader {
     void read(String path, Consumer<GenericRecord> consumer) throws Exception {
         Configuration conf = new Configuration();
         HadoopInputFile file = HadoopInputFile.fromPath(new Path(path), conf);
