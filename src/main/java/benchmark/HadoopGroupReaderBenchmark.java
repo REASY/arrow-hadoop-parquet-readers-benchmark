@@ -37,27 +37,26 @@ public class HadoopGroupReaderBenchmark extends BaseParquetReaderBenchmark {
                 var n = record.getFieldRepetitionCount(field.getName());
                 // Only handle non-null values
                 if (n == 1) {
-                    int index = 0;
                     if (field.isPrimitive()) {
                         var primitive = field.asPrimitiveType();
-                        var primitiveTypeName = primitive.getPrimitiveTypeName();
-                        if (primitiveTypeName == PrimitiveType.PrimitiveTypeName.BOOLEAN) {
-                            sum += record.getBoolean(field.getName(), index) ? 1 : 0;
-                        } else if (primitiveTypeName == PrimitiveType.PrimitiveTypeName.INT32) {
-                            sum += record.getInteger(field.getName(), index);
-                        } else if (primitiveTypeName == PrimitiveType.PrimitiveTypeName.INT64) {
-                            sum += record.getLong(field.getName(), index);
-                        } else if (primitiveTypeName == PrimitiveType.PrimitiveTypeName.FLOAT) {
-                            sum += (long) record.getFloat(field.getName(), index);
-                        } else if (primitiveTypeName == PrimitiveType.PrimitiveTypeName.DOUBLE) {
-                            sum += (long) record.getDouble(field.getName(), index);
-                        } else if (primitiveTypeName == PrimitiveType.PrimitiveTypeName.BINARY && primitive.getLogicalTypeAnnotation() instanceof LogicalTypeAnnotation.StringLogicalTypeAnnotation) {
-                            sum += record.getString(field.getName(), index).hashCode();
-                        } else {
-                            throw new IllegalStateException(primitiveTypeName.toString());
-                        }
+                        int fieldIndex = record.getType().getFieldIndex(field.getName());
+                        sum += readField(record, primitive, fieldIndex);
                     } else {
-                        throw new IllegalStateException(field.toString());
+                        var groupType = field.asGroupType();
+                        if (groupType.getLogicalTypeAnnotation() instanceof LogicalTypeAnnotation.ListLogicalTypeAnnotation) {
+                            var fieldGroup = record.getGroup(field.getName(), 0);
+                            var count = fieldGroup.getFieldRepetitionCount(0);
+                            for (int k = 0; k < count; k++) {
+                                var listGroup = fieldGroup.getGroup("list", k);
+                                if (listGroup.getFieldRepetitionCount(0) == 1) {
+                                    // Only handle List<Optional<PrimitiveType>>
+                                    var itemType = listGroup.getType().getType("item").asPrimitiveType();
+                                    sum += readField(listGroup, itemType, 0);
+                                }
+                            }
+                        } else {
+                            throw new IllegalStateException(field.toString());
+                        }
                     }
                 }
             }
@@ -66,6 +65,38 @@ public class HadoopGroupReaderBenchmark extends BaseParquetReaderBenchmark {
                 this.blackhole.consume(sum);
             }
         }
+    }
+
+    private static int readField(Group group, PrimitiveType itemType, int fieldIndex) {
+        var primitiveTypeName = itemType.getPrimitiveTypeName();
+        int hash;
+        switch (primitiveTypeName) {
+            case PrimitiveType.PrimitiveTypeName.BOOLEAN:
+                hash = group.getBoolean(fieldIndex, 0) ? 1 : 0;
+                break;
+            case PrimitiveType.PrimitiveTypeName.INT32:
+                hash = group.getInteger(fieldIndex, 0);
+                break;
+            case PrimitiveType.PrimitiveTypeName.INT64:
+                hash = (int)group.getLong(fieldIndex, 0);
+                break;
+            case PrimitiveType.PrimitiveTypeName.FLOAT:
+                hash = (int) group.getFloat(fieldIndex, 0);
+                break;
+            case PrimitiveType.PrimitiveTypeName.DOUBLE:
+                hash = (int) group.getDouble(fieldIndex, 0);
+                break;
+            case PrimitiveType.PrimitiveTypeName.BINARY:
+                if (itemType.getLogicalTypeAnnotation() instanceof LogicalTypeAnnotation.StringLogicalTypeAnnotation) {
+                    hash = group.getString(fieldIndex, 0).hashCode();
+                } else {
+                    hash = group.getBinary(fieldIndex, 0).hashCode();
+                }
+                break;
+            default:
+                throw new IllegalStateException(primitiveTypeName.toString());
+        }
+        return hash;
     }
 
 
