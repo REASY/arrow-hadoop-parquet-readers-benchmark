@@ -7,6 +7,16 @@ JMH benchmarks to measure the performance of parquet readers
 - Apache Arrow Parquet  (arrow-dataset v18.1.0)
 - Apache Parquet Avro   (parquet-avro v1.15.0)
 
+# How to run
+
+1. Make sure you have installed maven and Java 21
+2. `mvn package` in the root folder of the project to create JAR
+   a. Copy files from [src/main/resources](src/main/resources)
+   to [tmpfs](https://docs.kernel.org/filesystems/tmpfs.html) to reduce IO influence, tmpfs is RAM disk
+3. `java --add-opens=java.base/java.nio=org.apache.arrow.memory.core,ALL-UNNAMED -jar target/benchmarks.jar -prof gc -p inputPath=#PATH_TO_PARQUET#` to run benchmarks
+
+## Dataset: Yellow Taxi Trip Records      
+
 Test data is taken from Taxi & Limousine Commission, TLC Trip Record Data, January 2022, Yellow Taxi Trip
 Records (https://nyc-tlc.s3.amazonaws.com/trip+data/yellow_tripdata_2022-01.parquet). This file is copied
 as [a resource to the project](src/main/resources/yellow_tripdata_2022-01.parquet). Test data contains 2463931 rows and
@@ -29,14 +39,7 @@ has 19 columns, sample:
 +----------+-----------------------+-----------------------+-----------------+---------------+------------+--------------------+--------------+--------------+--------------+-------------+-------+---------+------------+--------------+-----------------------+--------------+----------------------+-------------+
 ```
 
-## How to run
-
-1. Make sure you have installed maven and Java 21
-2. `mvn package` in the root folder of the project to create JAR
-3. `java --add-opens=java.base/java.nio=org.apache.arrow.memory.core,ALL-UNNAMED -jar target/benchmarks.jar -prof gc` to
-   run benchmarks
-
-## Results
+### Results
 
 | Reader             | Average, ms | Faster than AvroParquetReader, times | Average gc.alloc.rate, MB/sec | gc.time , ms |
 |--------------------|-------------|--------------------------------------|-------------------------------|--------------|
@@ -65,3 +68,52 @@ HadoopGroupReaderBenchmark.readAllColumns:gc.count             avgt    5        
 HadoopGroupReaderBenchmark.readAllColumns:gc.time              avgt    5          644.000                   ms
 ```
 
+## Dataset: Synthetic Cumulative Histogram data
+
+Test data contains 1000 rows and has 45 columns (41 columns for tags and 4 list columns) , sample:
+
+```
+┌─────────────┬───────────────────┬──────────────┬──────────────────┬───┬────────────┬──────────────────────┬──────────────────────┬──────────────────────┬──────────────────────┐
+│ application │ availability_zone │ build_number │ cloud_account_id │ … │ tenant_id  │          ts          │     sums_double      │      sums_long       │        count         │
+│   varchar   │      varchar      │   varchar    │     varchar      │   │  varchar   │       int64[]        │       double[]       │       int64[]        │       int64[]        │
+├─────────────┼───────────────────┼──────────────┼──────────────────┼───┼────────────┼──────────────────────┼──────────────────────┼──────────────────────┼──────────────────────┤
+│ accounts    │ zone-b            │ 2169         │ 726820024292     │ … │ tenant-267 │ [1737967143010, 17…  │ []                   │ [26, 36, 45, 93, 1…  │ [8, 16, 21, 25, 34…  │
+│ accounts    │ zone-b            │ 2604         │ 299380463457     │ … │ tenant-488 │ [1737967143010, 17…  │ []                   │ [5, 10, 36, 73, 11…  │ [3, 13, 17, 19, 23…  │
+│ inventory   │ zone-a            │ 9821         │ 101872852789     │ … │ tenant-953 │ [1737967143010, 17…  │ []                   │ [38, 80, 110, 139,…  │ [7, 17, 23, 31, 35…  │
+│ accounts    │ zone-c            │ 2876         │ 748866464070     │ … │ tenant-344 │ [1737967143010, 17…  │ []                   │ [35, 78, 83, 125, …  │ [6, 13, 19, 28, 34…  │
+```
+
+### Results
+
+| Reader             | Average, ms | Faster than AvroParquetReader, times | Average gc.alloc.rate, MB/sec | gc.time , ms |
+|--------------------|-------------|--------------------------------------|-------------------------------|--------------|
+| ArrowParquetReader | 4.047       | 9.650                                | 2111.226                      | 65           |
+| HadoopGroupReader  | 23.331      | 1.674                                | 4238.102                      | 436          |
+| OptimizedReader    | 16.819      | 2.322                                | 2542.464                      | 356          |
+| AvroParquetReader  | 39.054      | 1                                    | 1697.357                      | 229          |
+
+Raw results:
+
+```
+Benchmark                                                                       (inputPath)  Mode  Cnt          Score       Error   Units
+ArrowParquetReaderBenchmark.readAllColumns                            /tmp/syntetic.parquet  avgt    5          4.047 ±     0.619   ms/op
+ArrowParquetReaderBenchmark.readAllColumns:gc.alloc.rate              /tmp/syntetic.parquet  avgt    5       2111.226 ±   319.393  MB/sec
+ArrowParquetReaderBenchmark.readAllColumns:gc.alloc.rate.norm         /tmp/syntetic.parquet  avgt    5    8947556.587 ±  3819.001    B/op
+ArrowParquetReaderBenchmark.readAllColumns:gc.count                   /tmp/syntetic.parquet  avgt    5        190.000              counts
+ArrowParquetReaderBenchmark.readAllColumns:gc.time                    /tmp/syntetic.parquet  avgt    5         65.000                  ms
+AvroParquetReaderBenchmark.readAllColumns                             /tmp/syntetic.parquet  avgt    5         39.054 ±     2.273   ms/op
+AvroParquetReaderBenchmark.readAllColumns:gc.alloc.rate               /tmp/syntetic.parquet  avgt    5       1697.357 ±    97.093  MB/sec
+AvroParquetReaderBenchmark.readAllColumns:gc.alloc.rate.norm          /tmp/syntetic.parquet  avgt    5   69497445.903 ± 40605.182    B/op
+AvroParquetReaderBenchmark.readAllColumns:gc.count                    /tmp/syntetic.parquet  avgt    5        281.000              counts
+AvroParquetReaderBenchmark.readAllColumns:gc.time                     /tmp/syntetic.parquet  avgt    5        229.000                  ms
+HadoopGroupReaderBenchmark.readAllColumns                             /tmp/syntetic.parquet  avgt    5         23.331 ±     2.642   ms/op
+HadoopGroupReaderBenchmark.readAllColumns:gc.alloc.rate               /tmp/syntetic.parquet  avgt    5       4238.102 ±   461.358  MB/sec
+HadoopGroupReaderBenchmark.readAllColumns:gc.alloc.rate.norm          /tmp/syntetic.parquet  avgt    5  103616114.393 ± 36254.937    B/op
+HadoopGroupReaderBenchmark.readAllColumns:gc.count                    /tmp/syntetic.parquet  avgt    5        472.000              counts
+HadoopGroupReaderBenchmark.readAllColumns:gc.time                     /tmp/syntetic.parquet  avgt    5        436.000                  ms
+optimized.OptimizedReaderBenchmark.readAllColumns                     /tmp/syntetic.parquet  avgt    5         16.819 ±     1.211   ms/op
+optimized.OptimizedReaderBenchmark.readAllColumns:gc.alloc.rate       /tmp/syntetic.parquet  avgt    5       2542.464 ±   179.210  MB/sec
+optimized.OptimizedReaderBenchmark.readAllColumns:gc.alloc.rate.norm  /tmp/syntetic.parquet  avgt    5   44827908.387 ± 24944.764    B/op
+optimized.OptimizedReaderBenchmark.readAllColumns:gc.count            /tmp/syntetic.parquet  avgt    5        413.000              counts
+optimized.OptimizedReaderBenchmark.readAllColumns:gc.time             /tmp/syntetic.parquet  avgt    5        356.000                  ms
+```
