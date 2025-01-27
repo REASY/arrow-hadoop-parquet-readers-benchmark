@@ -15,7 +15,7 @@ import java.util.function.Consumer;
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @State(Scope.Benchmark)
 public class OptimizedReaderBenchmark extends BaseParquetReaderBenchmark {
-    static class CountingProcessor implements Consumer<RecordConverter.Record> {
+    public static class CountingProcessor implements Consumer<RecordConverter.Record> {
 
         private final Blackhole blackhole;
 
