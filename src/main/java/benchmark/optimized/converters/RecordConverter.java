@@ -7,27 +7,25 @@ import org.apache.parquet.schema.*;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HexFormat;
 import java.util.List;
 
 public class RecordConverter extends GroupConverter {
     private final Converter[] converters;
     private Record record;
-    private final String[] sortedTags;
+    private final String[] tags;
 
 
     public RecordConverter(MessageType schema) {
         int fieldCount = schema.getFieldCount();
         this.converters = new Converter[fieldCount];
-        this.sortedTags = new String[fieldCount - 4];
+        this.tags = new String[fieldCount - 4];
 
         for (int i = 0; i < fieldCount; i++) {
             converters[i] = createConverter(i, schema.getType(i));
             if (i < fieldCount - 4) {
-                sortedTags[i] = new String(HexFormat.of().parseHex(schema.getFieldName(i)), StandardCharsets.UTF_8);
+                tags[i] = schema.getFieldName(i);
             }
         }
     }
@@ -52,7 +50,7 @@ public class RecordConverter extends GroupConverter {
 
     @Override
     public void start() {
-        record = new Record(this.sortedTags);
+        record = new Record(this.tags);
     }
 
     @Override
@@ -64,7 +62,7 @@ public class RecordConverter extends GroupConverter {
     }
 
     public static class Record {
-        private final String[] sortedTags;
+        private final String[] tags;
 
         public final List<String> tagValues = new ArrayList<>();
         public long[] ts;
@@ -72,8 +70,8 @@ public class RecordConverter extends GroupConverter {
         public long[] sumsLong;
         public long[] count;
 
-        public Record(String[] sortedTags) {
-            this.sortedTags = sortedTags;
+        public Record(String[] tags) {
+            this.tags = tags;
         }
 
         public void add(int fieldIndex, String name, Object value, boolean isList) {
@@ -95,7 +93,7 @@ public class RecordConverter extends GroupConverter {
                         throw new IllegalArgumentException("Unsupported column: " + name);
                 }
             } else {
-                String tag = this.sortedTags[fieldIndex];
+                String tag = this.tags[fieldIndex];
                 this.tagValues.add(tag);
                 this.tagValues.add((String) value);
             }

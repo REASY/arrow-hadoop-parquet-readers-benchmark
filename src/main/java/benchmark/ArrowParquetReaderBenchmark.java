@@ -13,7 +13,7 @@ import java.util.function.Consumer;
 @BenchmarkMode(org.openjdk.jmh.annotations.Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @State(org.openjdk.jmh.annotations.Scope.Benchmark)
-public class ArrowParquetReaderBenchmark extends BaseParquetReaderBenchmark {
+public class ArrowParquetReaderBenchmark {
 
     static class CountingBatchProcessor implements Consumer<VectorSchemaRoot> {
         private final Blackhole blackhole;
@@ -54,10 +54,10 @@ public class ArrowParquetReaderBenchmark extends BaseParquetReaderBenchmark {
     }
 
     @Benchmark
-    public void readAllColumns(Blackhole blackhole) throws Exception {
+    public void readAllColumns(Blackhole blackhole, BenchState state) throws Exception {
         var counter = new CountingBatchProcessor(blackhole);
         var rdr = new ArrowParquetReader();
-        rdr.read(filePath, batchSize,  counter);
+        rdr.read(state.getInputPath(), 20000,  counter);
         blackhole.consume(counter.batches);
         blackhole.consume(counter.totalRows);
         blackhole.consume(counter.hashCodeSum);

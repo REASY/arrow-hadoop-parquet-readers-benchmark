@@ -1,6 +1,6 @@
 package benchmark.optimized;
 
-import benchmark.BaseParquetReaderBenchmark;
+import benchmark.BenchState;
 import benchmark.optimized.converters.RecordConverter;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
@@ -14,7 +14,7 @@ import java.util.function.Consumer;
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @State(Scope.Benchmark)
-public class OptimizedReaderBenchmark extends BaseParquetReaderBenchmark {
+public class OptimizedReaderBenchmark {
     public static class CountingProcessor implements Consumer<RecordConverter.Record> {
 
         private final Blackhole blackhole;
@@ -45,10 +45,10 @@ public class OptimizedReaderBenchmark extends BaseParquetReaderBenchmark {
 
 
     @Benchmark
-    public void readAllColumns(Blackhole blackhole) throws Exception {
+    public void readAllColumns(Blackhole blackhole, BenchState state) throws Exception {
         var counter = new CountingProcessor(blackhole);
         var rdr = new OptimizedHadoopReader();
-        rdr.read(filePath, counter);
+        rdr.read(state.getInputPath(), counter);
         blackhole.consume(counter.totalRows);
         blackhole.consume(counter.hashCodeSum);
     }

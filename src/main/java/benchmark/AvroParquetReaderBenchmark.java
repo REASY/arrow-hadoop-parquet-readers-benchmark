@@ -12,7 +12,7 @@ import java.util.function.Consumer;
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @State(Scope.Benchmark)
-public class AvroParquetReaderBenchmark extends BaseParquetReaderBenchmark {
+public class AvroParquetReaderBenchmark {
 
     static class CountingProcessor implements Consumer<GenericRecord> {
         private final Blackhole blackhole;
@@ -44,10 +44,10 @@ public class AvroParquetReaderBenchmark extends BaseParquetReaderBenchmark {
     }
 
     @Benchmark
-    public void readAllColumns(Blackhole blackhole) throws Exception {
+    public void readAllColumns(Blackhole blackhole, BenchState state) throws Exception {
         var counter = new CountingProcessor(blackhole);
         var rdr = new AvroParquetReader();
-        rdr.read(filePath, counter);
+        rdr.read(state.getInputPath(), counter);
         blackhole.consume(counter.totalRows);
         blackhole.consume(counter.hashCodeSum);
     }

@@ -15,7 +15,7 @@ import java.util.function.Consumer;
 @BenchmarkMode(org.openjdk.jmh.annotations.Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @State(org.openjdk.jmh.annotations.Scope.Benchmark)
-public class HadoopGroupReaderBenchmark extends BaseParquetReaderBenchmark {
+public class HadoopGroupReaderBenchmark {
     static class CountingProcessor implements Consumer<Group> {
 
         private final Blackhole blackhole;
@@ -101,10 +101,10 @@ public class HadoopGroupReaderBenchmark extends BaseParquetReaderBenchmark {
 
 
     @Benchmark
-    public void readAllColumns(Blackhole blackhole) throws Exception {
+    public void readAllColumns(Blackhole blackhole, BenchState state) throws Exception {
         var counter = new CountingProcessor(blackhole);
         var rdr = new HadoopGroupReader();
-        rdr.read(filePath, counter);
+        rdr.read(state.getInputPath(), counter);
         blackhole.consume(counter.totalRows);
         blackhole.consume(counter.hashCodeSum);
     }
